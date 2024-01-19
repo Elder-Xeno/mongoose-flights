@@ -8,7 +8,7 @@ const port = process.env.PORT || 4000;
 require('dotenv').config();
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var usersRouter = require('./routes/flights');
 
 var app = express();
 
