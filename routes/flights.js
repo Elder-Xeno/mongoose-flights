@@ -1,33 +1,11 @@
-var express = require('express');
-var router = express.Router();
-const Flight = require('../models/flights');
+const express = require('express');
+const router = express.Router();
+const flightsController = require('../controllers/flightsController');
 
-router.get('/flights', (req, res) => {
-  Flight.find({})
-    .then((flights) => {
-      res.render('flights/index', { flights });
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).send('Internal Server Error');
-    });
-});
+router.get('/', flightsController.getFlights);
 
-router.get('/flights/new', (req, res) => {
-  res.render('flights/new');
-});
+router.get('/new', flightsController.showFlightForm);
 
-router.post('/flights', (req, res) => {
-  const newFlight = new Flight(req.body);
-  newFlight.save()
-    .then(() => {
-      res.redirect('/flights');
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).send('Internal Server Error');
-    });
-});
-
+router.post('/', flightsController.createFlight);
 
 module.exports = router;

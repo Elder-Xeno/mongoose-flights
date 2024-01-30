@@ -1,4 +1,7 @@
-const flightSchema = new mongoose.Schema({
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
+const flightSchema = new Schema({
     airline: {
         type: String,
         enum: ['America', 'Southwest', 'United'],
@@ -17,8 +20,18 @@ const flightSchema = new mongoose.Schema({
       },
       departs: {
         type: Date,
-        default: () => new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-      },
-    });
+        default: () => {
+            const oneYearFromNow = new Date();
+            oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+            return oneYearFromNow;
+        },
+    },
+}, {
+    toJSON: { virtuals: true },
+});
+
+flightSchema.virtual('formattedDeparts').get(function () {
+  return this.departs.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+});
 
 module.exports = mongoose.model('Flight', flightSchema);

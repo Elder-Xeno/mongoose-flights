@@ -1,0 +1,22 @@
+<% include ../partials/header %>
+
+<h1>List of Flights</h1>
+
+<table>
+    <tr>
+        <th>Airline</th>
+        <th>Airport</th>
+        <th>Flight No.</th>
+        <th>Departure Date/Time</th>
+    </tr>
+    <% flights.forEach((flight) => { %>
+        <tr style="<%= new Date() > flight.departs ? 'color: red;' : '' %>">
+            <td><%= flight.airline %></td>
+            <td><%= flight.airport %></td>
+            <td><%= flight.flightNo %></td>
+            <td><%= flight.formattedDeparts %></td>
+        </tr>
+    <% }); %>
+</table>
+
+<% include ../partials/footer %>
