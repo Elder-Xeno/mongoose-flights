@@ -36,14 +36,34 @@ async function showFlightDetails(req, res) {
         }
         res.render('flights/show', { flight });
     } catch (error) {
+      res.status(500).render('error', { message: 'Internal Server Error' });
+    }
+};
+
+async function addDestination(req, res) {
+    try {
+      const flight = await Flight.findById(req.params.id);
+      if (!flight) {
+        return res.status(404).render('error', { message: 'Flight not found' });
+      }
+      const newDestination = {
+        airport: req.body.airport,
+        arrival: req.body.arrival,
+      };
+      flight.destinations.push(newDestination);
+      await flight.save();
+      res.redirect(`/flights/${flight._id}`);
+    } catch (error) {
       console.error(error);
       res.status(500).render('error', { message: 'Internal Server Error' });
     }
-  };
+  }
+
 
   module.exports = {
     getFlights,
     showFlightForm,
     createFlight,
     showFlightDetails,
+    addDestination,
   };
