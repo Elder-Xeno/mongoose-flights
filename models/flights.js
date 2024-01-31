@@ -1,6 +1,18 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const destinationSchema = new Schema({
+  airport: {
+      type: String,
+      enum: ['AUS', 'DFW', 'DEN', 'LAX', 'SAN'],
+      required: true,
+  },
+  arrival: {
+      type: Date,
+      required: true,
+  },
+});
+
 const flightSchema = new Schema({
     airline: {
         type: String,
@@ -26,6 +38,10 @@ const flightSchema = new Schema({
             return oneYearFromNow;
         },
     },
+    destinations: {
+      type: [destinationSchema],
+      required: true,
+  },
 }, {
     toJSON: { virtuals: true },
 });
@@ -34,4 +50,4 @@ flightSchema.virtual('formattedDeparts').get(function () {
   return this.departs.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 });
 
-module.exports = mongoose.model('Flight', flightSchema);
+module.exports = mongoose.model('Flight', destinationSchema, flightSchema);

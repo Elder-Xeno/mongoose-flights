@@ -27,9 +27,23 @@ async function createFlight(req, res) {
     }
 }
 
-  
+async function showFlightDetails(req, res) {
+    try {
+        const flight = await Flight.findById(req.params.id);
+
+        if (!flight){
+            return res.status(404).render('error', { message: 'Flight not found'});
+        }
+        res.render('flights/show', { flight });
+    } catch (error) {
+      console.error(error);
+      res.status(500).render('error', { message: 'Internal Server Error' });
+    }
+  };
+
   module.exports = {
     getFlights,
     showFlightForm,
     createFlight,
+    showFlightDetails,
   };
