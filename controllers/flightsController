@@ -1,69 +1,102 @@
-const Flight = require('../models/flights');
+const Flight = require("../models/flights");
+const Ticket = require("../models/tickets");
 
-async function getFlights(req, res) {
-    try {
-        const flights = await Flight.find({}).sort({ departs: 'asc' });
-        res.render('flights/index', { flights });
-    } catch (error) {
-        console.error(error);
-    }
+async function index(req, res) {
+  try {
+    const flights = await Flight.find({}).sort({ departs: "asc" });
+    res.render("flights/index", { flights });
+  } catch (error) {
+    console.error("Error fetching flights:", error);
+    res
+      .status(500)
+      .render("error", {
+        message: "Error fetching flights. Please try again later.",
+      });
+  }
 }
-  
-  function showFlightForm(req, res) {
+
+function newFlightForm(req, res) {
+  try {
     const newFlight = new Flight();
     const dt = newFlight.departs;
-    let departsDate = `${dt.getFullYear()}-${(dt.getMonth() + 1).toString().padStart(2, '0')}`;
-    departsDate += `-${dt.getDate().toString().padStart(2, '0')}T${dt.toTimeString().slice(0, 5)}`;
-    res.render('flights/new', { departsDate });
-}
-
-async function createFlight(req, res) {
-    try {
-        const newFlight = new Flight(req.body);
-        await newFlight.save();
-        res.redirect('/flights');
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-async function showFlightDetails(req, res) {
-    try {
-        const flight = await Flight.findById(req.params.id);
-
-        if (!flight){
-            return res.status(404).render('error', { message: 'Flight not found'});
-        }
-        res.render('flights/show', { flight });
-    } catch (error) {
-      res.status(500).render('error', { message: 'Internal Server Error' });
-    }
-};
-
-async function addDestination(req, res) {
-    try {
-      const flight = await Flight.findById(req.params.id);
-      if (!flight) {
-        return res.status(404).render('error', { message: 'Flight not found' });
-      }
-      const newDestination = {
-        airport: req.body.airport,
-        arrival: req.body.arrival,
-      };
-      flight.destinations.push(newDestination);
-      await flight.save();
-      res.redirect(`/flights/${flight._id}`);
-    } catch (error) {
-      console.error(error);
-      res.status(500).render('error', { message: 'Internal Server Error' });
-    }
+    let departsDate = `${dt.getFullYear()}-${(dt.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}`;
+    departsDate += `-${dt.getDate().toString().padStart(2, "0")}T${dt
+      .toTimeString()
+      .slice(0, 5)}`;
+    res.render("flights/new", { departsDate });
+  } catch (error) {
+    console.error("Error rendering new flight form:", error);
+    res
+      .status(500)
+      .render("error", {
+        message: "Error rendering new flight form. Please try again later.",
+      });
   }
+}
 
+async function create(req, res) {
+  try {
+    const newFlight = new Flight(req.body);
+    await newFlight.save();
+    res.redirect("/flights");
+  } catch (error) {
+    console.error("Error creating new flight:", error);
+    res
+      .status(500)
+      .render("error", {
+        message: "Error creating new flight. Please try again later.",
+      });
+  }
+}
 
-  module.exports = {
-    getFlights,
-    showFlightForm,
-    createFlight,
-    showFlightDetails,
-    addDestination,
-  };
+async function show(req, res) {
+  try {
+    const flight = await Flight.findById(req.params.id);
+
+    if (!flight) {
+      return res.status(404).render("error", { message: "Flight not found" });
+    }
+    const tickets = await Ticket.find({ flight: flight._id });
+    res.render("flights/show", { flight, tickets });
+  } catch (error) {
+    console.error("Error fetching flight details:", error);
+    res
+      .status(500)
+      .render("error", {
+        message: "Error fetching flight details. Please try again later.",
+      });
+  }
+}
+
+async function createDestination(req, res) {
+  try {
+    const flight = await Flight.findById(req.params.id);
+
+    if (!flight) {
+      return res.status(404).render("error", { message: "Flight not found" });
+    }
+
+    const { airport, arrival } = req.body;
+    flight.destinations.push({ airport, arrival });
+    await flight.save();
+
+    res.redirect(`/flights/${flight._id}`);
+  } catch (error) {
+    console.error("Error creating destination:", error);
+    res
+      .status(500)
+      .render("error", {
+        message: "Error creating destination. Please try again later.",
+      });
+  }
+}
+
+module.exports = {
+  index,
+  new: newFlightForm,
+  create,
+  show,
+  update: createDestination,
+};

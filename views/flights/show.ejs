@@ -7,24 +7,51 @@
     <th>Airport</th>
     <th>Flight No.</th>
     <th>Departure Date/Time</th>
+    <th>Destinations</th>
   </tr>
   <tr>
     <td><%= flight.airline %></td>
     <td><%= flight.airport %></td>
     <td><%= flight.flightNo %></td>
     <td><%= flight.formattedDeparts %></td>
+    <td>
+      <% if (flight.destinations && flight.destinations.length > 0) { %>
+      <ul>
+        <% flight.destinations.forEach((destination) => { %>
+        <li>
+          <strong>Airport:</strong> <%= destination.airport %>,
+          <strong>Arrival:</strong> <%= destination.arrival.toLocaleString() %>
+        </li>
+        <% }); %>
+      </ul>
+      <% } else { %> No destinations available. <% } %>
+    </td>
   </tr>
 </table>
 
-<h2>Destinations</h2>
-<ul>
-  <% flight.destinations.forEach(destination => { %>
-    <li>Airport: <%= destination.airport %> - Arrival Date/Time: <%= destination.arrival %></li>
-  <% }); %>
-</ul>
+<h2>Tickets for this Flight</h2>
+<div class="ticket-actions">
+  <div class="new-ticket-container">
+    <a href="/tickets/new/<%= flight._id %>" class="new-ticket">New Ticket</a>
+  </div>
+  <div class="ticket-availability-container">
+    <% if (tickets && tickets.length > 0) { %>
+      <div class="ticket-cards">
+        <% tickets.forEach((ticket) => { %>
+          <div class="ticket-card">
+            <p><strong>Seat:</strong> <%= ticket.seat %></p>
+            <p><strong>Price:</strong> <%= ticket.price %></p>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <p>No tickets available for this flight.</p>
+    <% } %>
+  </div>
+</div>
 
 <h2>Add Destination</h2>
-<form action="/flights/<%= flight._id %>/add-destination" method="POST">
+<form action="/flights/<%= flight._id %>/destinations" method="POST">
   <label for="airport">Airport:</label>
   <select name="airport" required>
     <option value="AUS">AUS</option>
@@ -33,10 +60,8 @@
     <option value="LAX">LAX</option>
     <option value="SAN">SAN</option>
   </select>
-
   <label for="arrival">Arrival Date/Time:</label>
-  <input type="datetime-local" name="arrival" required>
-
+  <input type="datetime-local" name="arrival" required />
   <button type="submit">Add Destination</button>
 </form>
 

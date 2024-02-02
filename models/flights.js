@@ -41,6 +41,10 @@ const flightSchema = new Schema({
     type: [destinationSchema],
     required: true,
   },
+  tickets: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Ticket',
+  }],
 }, {
   toJSON: { virtuals: true },
 });
